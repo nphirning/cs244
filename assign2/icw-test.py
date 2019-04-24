@@ -10,6 +10,7 @@ SRC_PORT = random.randint(9001, 9998)
 START_SEQ = random.randint(1000, 2000)
 
 def create_TCP_packet(target, seq_no, flags, ack_no):
+  print(target)
   ip = IP(dst=target)
   opt = [('MSS', 64)]
   if ack_no is None:
@@ -29,7 +30,7 @@ def do_tcp_handshake(target, verbose=False):
     return
   seq_num = syn_response['TCP'].seq
   
-  # Step 2. Send SYN-ACK with GET request.
+  # Step 2. Send ACK with GET request.
   ack_packet = create_TCP_packet(target, START_SEQ+1, 'A', seq_num+1)
   get_str = 'GET / HTTP/1.0\r\nHost: %s\r\n\r\n' % target
   send(ack_packet / get_str, verbose=verbose)
@@ -60,15 +61,21 @@ def listen_until_retransmission(target):
   )
   return (packets, seq_nums_seen)
 
-def listen_for_new_pkts(target, maxSeqNo, minPackets):
+global isLimited
+
+def listen_for_new_pkts(target, maxSeqNo):
+  global isLimited
+  start = time.time()
   isLimited = False
   seq_nums_seen = []
+  
   def stop_filter_on_new_data(pkt):
+    global isLimited
     if len(pkt['TCP'].payload) == 0: return False
     if pkt['TCP'].seq > maxSeqNo:
       isLimited = True
       return True
-    if pkt['TCP'].seq in seq_nums_seen and len(seq_nums_seen) > minPackets:
+    if time.time() - start > 2:
       return True
     seq_nums_seen.append(pkt['TCP'].seq)
     return False
@@ -101,14 +108,11 @@ def run_icw_test(target, verbose=False):
   maxSeqNo, payloadLen = max(
     [(pkt['TCP'].seq, len(pkt['TCP'].payload)) for pkt in packets]
   )
-  minSeqNo, minPayloadLen = min(
-    [(pkt['TCP'].seq, len(pkt['TCP'].payload)) for pkt in packets]
-  )
-  nextAck = create_TCP_packet(target, START_SEQ+1, 'A', minSeqNo + minPayloadLen)
+  nextAck = create_TCP_packet(target, START_SEQ+1+40, 'A', maxSeqNo + payloadLen)
   send(nextAck, verbose=verbose)
 
   # Listen for more packets to determine if limited by ICW.
-  isLimited, seq_nums_seen = listen_for_new_pkts(target, maxSeqNo, len(packets))
+  isLimited, seq_nums_seen = listen_for_new_pkts(target, maxSeqNo)
   if verbose: print("Connection is limited by ICW: %s" % isLimited)
   close_connection(target, START_SEQ+2)
   unblock_OS()
