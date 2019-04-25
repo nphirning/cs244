@@ -108,6 +108,7 @@ def run_icw_test(target, verbose=False):
   maxSeqNo, payloadLen = max(
     [(pkt['TCP'].seq, len(pkt['TCP'].payload)) for pkt in packets]
   )
+  #TODO: Is +40 corrrect here?
   nextAck = create_TCP_packet(target, START_SEQ+1+40, 'A', maxSeqNo + payloadLen)
   send(nextAck, verbose=verbose)
 
@@ -122,11 +123,17 @@ def run_icw_test(target, verbose=False):
   response = ''.join([str(pkt['TCP'].payload) for pkt in packets])
   response = response[response.find('HTTP'):]
   statusCode = int(response[9:12])
+  print("statusCode is:")
+  print(statusCode)
   if maxMSS > 64: isLimited = False
   location = None
-  if statusCode == 301:
+  if statusCode == 301 or statusCode == 302:
+    print("printing response:")
+    print(response)
     idx = response.find('Location: ') + len('Location: ')
-    location = response[idx:response.find("\'", idx)]
+    location = response[idx:response.find("\n", idx)-1]
+    print("printing location")
+    print(location)
 
   return (isLimited, maxMSS, len(packets), statusCode, location)
 
