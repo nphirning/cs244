@@ -125,13 +125,9 @@ def run_icw_test(target, verbose=False):
   if maxMSS > MSS: isLimited = False
   location = None
   if statusCode == 301 or statusCode == 302:
-    print("printing response:")
-    print(response)
     idx = response.find('Location: ') + len('Location: ')
     print (idx, response.find("\n", idx))
     location = response[idx:response.find("\n", idx)-1]
-    print("printing location")
-    print(location)
 
   return (isLimited, maxMSS, len(packets), statusCode, location)
 
@@ -148,7 +144,8 @@ if __name__ == "__main__":
   print(results)
   
 
-  if results[3] == 301:
-    print("Retrying with %s" % results[4])
+  if results[3] == 301 and results[0] == False:
+    loc = results[4] + "/images/images/images/images"
+    print("Retrying with %s" % loc)
     run_icw_test(results[4], verbose=True)
 
