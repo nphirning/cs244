@@ -74,8 +74,6 @@ def listen_for_new_pkts(target, maxSeqNo):
     if pkt['TCP'].seq > maxSeqNo:
       isLimited = True
       return True
-    if time.time() - start > 2:
-      return True
     seq_nums_seen.append(pkt['TCP'].seq)
     return False
   
