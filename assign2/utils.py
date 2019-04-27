@@ -20,9 +20,9 @@ def block_os_from_sending_rst():
 def unblock_os_from_sending_rst():
   os.system("sed -i '' '$d' /etc/pf.conf >/dev/null 2>&1")
 
-def reset_connection(target):
-  rst = create_tcp_packet(target, 1000, 'R', seq_no, MSS)
-  send(rst)
+def reset_connection(target, src_port):
+  rst = create_tcp_packet(target, 1000, 'R', 1000, 500, src_port)
+  send(rst, verbose=False)
 
 def create_tcp_packet(target, seq_no, flags, ack_no, mss, src_port):
   ip = IP(dst=target)

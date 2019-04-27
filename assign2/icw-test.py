@@ -47,20 +47,20 @@ def init_connection(target):
   the nonempty packets received before the re-transmission event.
 """
 def listen_until_retransmission(target):
-  retransmission_occurred = False
+  retransmission_occurred = [False]
   packets = []
   seq_nums_seen = []
   def stop_filter(pkt):
 
     # Check if this is a retransmission.
-    if len(pkt['TCP'].payload) == 0: return False
-    if pkt['TCP'].seq in seq_nums_seen:
-      retransmission_occurred = True 
+    if TCP in pkt and len(pkt['TCP'].payload) == 0: return False
+    if TCP in pkt and pkt[TCP].seq in seq_nums_seen:
+      retransmission_occurred[0] = True 
       return True
     
     # Store information and continue. 
     packets.append(pkt)
-    seq_nums_seen.append(pkt['TCP'].seq)
+    if TCP in pkt: seq_nums_seen.append(pkt['TCP'].seq)
     return False
 
   sniff(
@@ -68,7 +68,7 @@ def listen_until_retransmission(target):
     stop_filter=stop_filter,
     timeout=TIMEOUT * 3
   )
-  return (retransmission_occurred, packets)
+  return (retransmission_occurred[0], packets)
 
 """
   Listens to packets from a given host `target` looking for nonempty packets
@@ -81,8 +81,8 @@ def listen_for_new_data(target, max_seq_no):
   
   is_limited = [False] # Work-around to access inside stop_filter_on_new_data.
   def stop_filter_on_new_data(packet):
-    if len(packet['TCP'].payload) == 0: return False
-    if packet['TCP'].seq > max_seq_no:
+    if TCP in packet and len(packet[TCP].payload) == 0: return False
+    if packet[TCP].seq > max_seq_no:
       is_limited[0] = True
       return True
     return False
@@ -109,22 +109,23 @@ def run_icw_test(target):
 
   # Initial test of ICW.
   block_os_from_sending_rst()
-  success, http_len = init_connection(target)
-  if not success: return (False, False)
+  res = init_connection(target)
+  if not res[0]: return (False, False)
   success, packets = listen_until_retransmission(target)
   if not success: return (False, False)
+  
 
   # After re-transmission, ACK a segment and check if ICW was limiting.
   packet_data = [(pkt[TCP].seq, len(pkt[TCP].payload)) for pkt in packets]
   max_seq_no, payload_len = max(packet_data)
   ack_no = max_seq_no + payload_len
-  next_seq_no = START_SEQ + 1 + http_len
-  next_ack = create_tcp_packet(target, next_seq_no, 'A', next_seq_no, MSS, SRC_PORT)
-  send(next_ack)
+  next_seq_no = START_SEQ + 1 + res[1]
+  next_ack = create_tcp_packet(target, next_seq_no, 'A', ack_no, MSS, SRC_PORT)
+  send(next_ack, verbose=False)
   is_limited = listen_for_new_data(target, max_seq_no)
 
   # End connection.
-  reset_connection(target)
+  reset_connection(target, SRC_PORT)
   unblock_os_from_sending_rst()
 
   # Ensure that the MSS we specified was obeyed.
@@ -138,6 +139,7 @@ def run_icw_test(target):
   response = ''.join([str(pkt[TCP].payload) for pkt in packets])
   response = response[response.find('HTTP'):]
   status_code = int(response[9:12])
+  print(status_code, response, len(packets))
   if status_code == 301 or status_code == 302:
     idx = response.find('Location: ') + len('Location: ')
     location = response[idx:response.find("\n", idx)-1]
@@ -153,7 +155,14 @@ if __name__ == "__main__":
 
   target = args.target
   base_target = get_base_url(target)
-  results = run_icw_test(base_target)
+  res = run_icw_test(base_target)
+  
+  if res[0]: print(res[2])
+  elif res[1]:
+    print(res[3])
+  else:
+    print("Nope")
+  
   
 
   # if results[3] == 301 and results[0] == False:
