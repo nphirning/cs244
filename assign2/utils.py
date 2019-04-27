@@ -8,7 +8,7 @@ def get_base_url(url):
   parsed_uri = urlparse(url)
   result = 'www.{uri.netloc}'.format(uri=parsed_uri)
   
-  return result
+  return result, parsed_uri.path
 
 def block_os_from_sending_rst():
   pf_conf_str = 'block drop proto tcp from any port 9000:9999 to any flags R/R '

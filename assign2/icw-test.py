@@ -12,14 +12,14 @@ MSS = 64
 TIMEOUT = 3
 
 """
-  Initializes a connection to a hostname `target`. This initiates a TCP 
-  handshake and sends a HTTP 1.0 GET request with final ACK.
+  Initializes a connection to a hostname `target` with URL path `path`. This 
+  initiates a TCP handshake and sends a HTTP 1.0 GET request with final ACK.
   
   Returns a tuple (success, msg_bytes), where `success` is true/false based on 
   whether the connection was successful and `msg_bytes` is set on a success to
   indicate the number of bytes in the TCP payload sent. 
 """
-def init_connection(target):
+def init_connection(target, path):
   
   # Step 1. Send SYN.
   syn_packet = create_tcp_packet(target, START_SEQ, 'S', None, MSS, SRC_PORT)
@@ -33,7 +33,7 @@ def init_connection(target):
   
   # Step 3. Send final ACK with GET request.
   ack_packet = create_tcp_packet(target, START_SEQ+1, 'A', seq_num+1, MSS, SRC_PORT)
-  get_str = 'GET / HTTP/1.0\r\nHost: %s\r\n\r\n' % target
+  get_str = 'GET %s HTTP/1.0\r\nHost: %s\r\n\r\n' % (path, target)
   send(ack_packet / get_str, verbose=False)
   return (True, len(get_str))
 
@@ -51,7 +51,6 @@ def listen_until_retransmission(target):
   packets = []
   seq_nums_seen = []
   def stop_filter(pkt):
-
     # Check if this is a retransmission.
     if TCP in pkt and len(pkt['TCP'].payload) == 0: return False
     if TCP in pkt and pkt[TCP].seq in seq_nums_seen:
@@ -96,7 +95,8 @@ def listen_for_new_data(target, max_seq_no):
   return is_limited[0]
 
 """
-  Runs a single iteration of the ICW test for a host `target`.
+  Runs a single iteration of the ICW test for a host `target` with a URL path
+  `path`.
 
   Returns a tuple (success, should_retry, num_packets, hint) where `success` is
   true/false based on whether or not the test succeeded. If the test succeeded,
@@ -105,13 +105,14 @@ def listen_for_new_data(target, max_seq_no):
   could succeed based on changes to the target. The `hint` recommends a new
   `target` within the host's network that may work.
 """
-def run_icw_test(target):
+def run_icw_test(target, path):
 
   # Initial test of ICW.
   block_os_from_sending_rst()
-  res = init_connection(target)
+  res = init_connection(target, path)
   if not res[0]: return (False, False)
   success, packets = listen_until_retransmission(target)
+  print(len(packets))
   if not success: return (False, False)
   
 
@@ -133,6 +134,7 @@ def run_icw_test(target):
   if max_mss > MSS: return (False, False)
 
   # Handle success.
+  print("What", packets)
   if is_limited: return (True, None, len(packets))
 
   # On failure, extract response and handle based on status code.
@@ -154,9 +156,9 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   target = args.target
-  base_target = get_base_url(target)
-  res = run_icw_test(base_target)
-  
+  base_target, path = get_base_url(target)
+  res = run_icw_test(base_target, path)
+  print(res)
   if res[0]: print(res[2])
   elif res[1]:
     print(res[3])
