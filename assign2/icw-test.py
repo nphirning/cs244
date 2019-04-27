@@ -8,128 +8,142 @@ SRC_PORT = random.randint(9001, 9998)
 START_SEQ = random.randint(1000, 2000)
 MSS = 64
 
-# Number of seconds to wait for new data after sending an ACK. This is used to
-# determine if the output was actually limited by the ICW.
-CHECK_IF_LIMITED_TIMEOUT = 3
+# General timeout for sending packets.
+TIMEOUT = 3
 
-def create_TCP_packet(target, seq_no, flags, ack_no):
-  ip = IP(dst=target)
-  opt = [('MSS', MSS)]
-  if ack_no is None:
-    tcp = TCP(dport=80, sport=SRC_PORT, flags=flags, seq=seq_no, options=opt) 
-  else:
-    tcp = TCP(dport=80, sport=SRC_PORT, flags=flags, seq=seq_no, ack=ack_no, options=opt)
-  return ip / tcp
-
-def do_tcp_handshake(target, verbose=False):
+"""
+  Initializes a connection to a hostname `target`. This initiates a TCP 
+  handshake and sends a HTTP 1.0 GET request with final ACK.
   
-  # Step 1. Send SYN and receive SYN-ACK.
-  syn_packet = create_TCP_packet(target, START_SEQ, 'S', None)
-  ans, unans = sr(syn_packet, verbose=verbose)
+  Returns a tuple (success, msg_bytes), where `success` is true/false based on 
+  whether the connection was successful and `msg_bytes` is set on a success to
+  indicate the number of bytes in the TCP payload sent. 
+"""
+def init_connection(target):
+  
+  # Step 1. Send SYN.
+  syn_packet = create_tcp_packet(target, START_SEQ, 'S', None, MSS, SRC_PORT)
+  ans, unans = sr(syn_packet, timeout=TIMEOUT, verbose=False)
+  if ans is None: return (False,)
+
+  # Step 2. Receive SYN-ACK response.
   syn_response = ans[0][1]
-  if not syn_response['TCP'] or syn_response['TCP'].flags != 'SA':
-    print("Response was not a SYNACK.")
-    return
+  if not syn_response['TCP'] or syn_response['TCP'].flags != 'SA': return (False,)
   seq_num = syn_response['TCP'].seq
   
-  # Step 2. Send ACK with GET request.
-  ack_packet = create_TCP_packet(target, START_SEQ+1, 'A', seq_num+1)
+  # Step 3. Send final ACK with GET request.
+  ack_packet = create_tcp_packet(target, START_SEQ+1, 'A', seq_num+1, MSS, SRC_PORT)
   get_str = 'GET / HTTP/1.0\r\nHost: %s\r\n\r\n' % target
-  send(ack_packet / get_str, verbose=verbose)
+  send(ack_packet / get_str, verbose=False)
+  return (True, len(get_str))
 
+"""
+  Listens to packets from a given host `target` and stops when a re-transmission
+  occurs. If no retransmission events are observed, this will stop after
+  3 * TIMEOUT seconds.
+
+  Returns a tuple `(success, packets)` where `success` is true/false based on 
+  whether or not a re-transmission event occurred and `packets` is a list of 
+  the nonempty packets received before the re-transmission event.
+"""
 def listen_until_retransmission(target):
+  retransmission_occurred = False
   packets = []
   seq_nums_seen = []
   def stop_filter(pkt):
-    if len(pkt['TCP'].payload) > 0:
-      if pkt['TCP'].seq in seq_nums_seen:
-        return True
-      packets.append(pkt)
-      seq_nums_seen.append(pkt['TCP'].seq)
+
+    # Check if this is a retransmission.
+    if len(pkt['TCP'].payload) == 0: return False
+    if pkt['TCP'].seq in seq_nums_seen:
+      retransmission_occurred = True 
+      return True
+    
+    # Store information and continue. 
+    packets.append(pkt)
+    seq_nums_seen.append(pkt['TCP'].seq)
     return False
 
   sniff(
     filter='host %s and port %s' % (target, SRC_PORT),
     stop_filter=stop_filter,
+    timeout=TIMEOUT * 3
   )
-  return (packets, seq_nums_seen)
+  return (retransmission_occurred, packets)
 
-global isLimited
+"""
+  Listens to packets from a given host `target` looking for nonempty packets
+  with sequence number greater than `max_seq_no`. Stops when data is observed
+  or on a timeout. 
 
-def listen_for_new_pkts(target, maxSeqNo):
-  global isLimited
-  start = time.time()
-  isLimited = False
-  seq_nums_seen = []
+  Returns true/false based on whether new data was observed.
+"""
+def listen_for_new_data(target, max_seq_no):
   
-  def stop_filter_on_new_data(pkt):
-
-    # Timeout check.
-    if time.time() - start > CHECK_IF_LIMITED_TIMEOUT:
+  is_limited = [False] # Work-around to access inside stop_filter_on_new_data.
+  def stop_filter_on_new_data(packet):
+    if len(packet['TCP'].payload) == 0: return False
+    if packet['TCP'].seq > max_seq_no:
+      is_limited[0] = True
       return True
-
-    # Check for new data.
-    global isLimited
-    if len(pkt['TCP'].payload) == 0: return False
-    if pkt['TCP'].seq > maxSeqNo:
-      isLimited = True
-      return True
-    seq_nums_seen.append(pkt['TCP'].seq)
     return False
   
   sniff(
     filter='host %s and port %s' % (target, SRC_PORT),
-    stop_filter=stop_filter_on_new_data
+    stop_filter=stop_filter_on_new_data,
+    timeout=TIMEOUT
   )
 
-  return (isLimited, seq_nums_seen)
+  return is_limited[0]
 
-def close_connection(target, seq_no, verbose=False):
-  rst = create_TCP_packet(target, seq_no, 'R', seq_no)
-  send(rst, verbose=verbose)
+"""
+  Runs a single iteration of the ICW test for a host `target`.
 
-def run_icw_test(target, verbose=False):
+  Returns a tuple (success, should_retry, num_packets, hint) where `success` is
+  true/false based on whether or not the test succeeded. If the test succeeded,
+  `num_packets` will be the number of (MSS-sized) packets in the ICW. If not, 
+  then `should_retry` will be true/false based on whether the test thinks it 
+  could succeed based on changes to the target. The `hint` recommends a new
+  `target` within the host's network that may work.
+"""
+def run_icw_test(target):
 
-  if verbose: print("Contacting server at address %s" % target)
-  close_connection(target, 1)
-  time.sleep(1)
-
-  # Create a connection and listen for re-transmission.
+  # Initial test of ICW.
   block_os_from_sending_rst()
-  do_tcp_handshake(target, verbose=verbose)
-  if verbose: print("TCP handshake complete.")
-  packets, seq_nums_seen = listen_until_retransmission(target)
-  if verbose: print("Retransmission event observed. Acking first segment.")
+  success, http_len = init_connection(target)
+  if not success: return (False, False)
+  success, packets = listen_until_retransmission(target)
+  if not success: return (False, False)
 
-  # After re-transmission, ACK a segment to detect if limited by ICW.
-  maxSeqNo, payloadLen = max(
-    [(pkt['TCP'].seq, len(pkt['TCP'].payload)) for pkt in packets]
-  )
-  #TODO: Is +40 corrrect here?
-  nextAck = create_TCP_packet(target, START_SEQ+1+40, 'A', maxSeqNo + payloadLen)
-  send(nextAck, verbose=verbose)
+  # After re-transmission, ACK a segment and check if ICW was limiting.
+  packet_data = [(pkt[TCP].seq, len(pkt[TCP].payload)) for pkt in packets]
+  max_seq_no, payload_len = max(packet_data)
+  ack_no = max_seq_no + payload_len
+  next_seq_no = START_SEQ + 1 + http_len
+  next_ack = create_tcp_packet(target, next_seq_no, 'A', next_seq_no, MSS, SRC_PORT)
+  send(next_ack)
+  is_limited = listen_for_new_data(target, max_seq_no)
 
-  # Listen for more packets to determine if limited by ICW.
-  isLimited, seq_nums_seen = listen_for_new_pkts(target, maxSeqNo)
-  if verbose: print("Connection is limited by ICW: %s" % isLimited)
-  close_connection(target, START_SEQ+2)
+  # End connection.
+  reset_connection(target)
   unblock_os_from_sending_rst()
 
-  # Data extraction.
-  maxMSS = max([len(pkt['TCP'].payload) for pkt in packets])
-  response = ''.join([str(pkt['TCP'].payload) for pkt in packets])
-  response = response[response.find('HTTP'):]
-  statusCode = int(response[9:12])
-  print("statusCode is:")
-  print(statusCode)
-  if maxMSS > MSS: isLimited = False
-  location = None
-  if statusCode == 301 or statusCode == 302:
-    idx = response.find('Location: ') + len('Location: ')
-    print (idx, response.find("\n", idx))
-    location = response[idx:response.find("\n", idx)-1]
+  # Ensure that the MSS we specified was obeyed.
+  max_mss = max([len(pkt[TCP].payload) for pkt in packets])
+  if max_mss > MSS: return (False, False)
 
-  return (isLimited, maxMSS, len(packets), statusCode, location)
+  # Handle success.
+  if is_limited: return (True, None, len(packets))
+
+  # On failure, extract response and handle based on status code.
+  response = ''.join([str(pkt[TCP].payload) for pkt in packets])
+  response = response[response.find('HTTP'):]
+  status_code = int(response[9:12])
+  if status_code == 301 or status_code == 302:
+    idx = response.find('Location: ') + len('Location: ')
+    location = response[idx:response.find("\n", idx)-1]
+    return (False, True, len(packets), location)
+
+  return (False, False)
 
 
 if __name__ == "__main__":
@@ -139,13 +153,11 @@ if __name__ == "__main__":
 
   target = args.target
   base_target = get_base_url(target)
-  print(base_target)
-  results = run_icw_test(base_target, verbose=True)
-  print(results)
+  results = run_icw_test(base_target)
   
 
-  if results[3] == 301 and results[0] == False:
-    loc = results[4] + "/images/images/images/images"
-    print("Retrying with %s" % loc)
-    run_icw_test(results[4], verbose=True)
+  # if results[3] == 301 and results[0] == False:
+  #   loc = results[4] + "/images/images/images/images"
+  #   print("Retrying with %s" % loc)
+  #   run_icw_test(results[4], verbose=True)
 
