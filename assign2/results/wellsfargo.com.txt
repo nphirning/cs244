@@ -2,3 +2,4 @@ https://HTTP/1.0\r\nServer: KONICHIW'b'A/1.3\r\nConnection: close\r\nContent-Len
 1
 https://HTTP/1.0\r\nServer: KONICHIW'b'A/1.3\r\nConnection: close\r\nContent-Length: 0\r\n\r\n'b'\x00\x0
 https://HTTP/1.0\r\nServer: KONICHIW'b'A/1.3\r\nConnection: close\r\nContent-Length: 0\r\n\r\n'b'\x00\x0
+https://HTTP/1.0\r\nServer: KONICHIW'b'\x00\x00'b'A/1.3\r\nConnection: close\r\nContent-Length: 0\r\n\r\
