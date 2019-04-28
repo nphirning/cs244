@@ -1,1 +1,2 @@
-Nope
+https://HTTP/1.0\r\nCach'b'e-Control: private, max-age=3600\r\nServer: BigIP\r\nConnection: clo'b'se\r\nContent-Length: 0\r\n\r\n'b'\x00\x0
+https://HTTP/1.0\r\nCach'b'e-Control: private, max-age=3600\r\nServer: BigIP\r\nConnection: clo'b'se\r\nContent-Length: 0\r\n\r\n'b'\x00\x0

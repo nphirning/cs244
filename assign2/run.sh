@@ -1,8 +1,6 @@
 #! /bin/sh
-for i in {1..5}
+
+cat ./sites.csv | while read line
 do
-	cat ./sites.csv | while read line
-	do
-		sudo python3 ./icw-test.py $line >> "./results2/$line.txt"
-	done
+	sudo python3 ./icw-test.py $line >> "./results/$line.txt"
 done
