@@ -1,4 +1,4 @@
-from scapy.all import *
+#from scapy.all import *
 from utils import *
 import argparse
 import time
@@ -33,6 +33,7 @@ def init_connection(target, path):
   
   # Step 3. Send final ACK with GET request.
   ack_packet = create_tcp_packet(target, START_SEQ+1, 'A', seq_num+1, MSS, SRC_PORT)
+  long_target = target + "/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images"
   get_str = 'GET %s HTTP/1.0\r\nHost: %s\r\n\r\n' % (path, target)
   send(ack_packet / get_str, verbose=False)
   return (True, len(get_str))
@@ -106,15 +107,14 @@ def listen_for_new_data(target, max_seq_no):
   `target` within the host's network that may work.
 """
 def run_icw_test(target, path):
-
   # Initial test of ICW.
   block_os_from_sending_rst()
   res = init_connection(target, path)
   if not res[0]: return (False, False)
   success, packets = listen_until_retransmission(target)
-  print(len(packets))
+#  print(len(packets))
   if not success: return (False, False)
-  
+
 
   # After re-transmission, ACK a segment and check if ICW was limiting.
   packet_data = [(pkt[TCP].seq, len(pkt[TCP].payload)) for pkt in packets]
@@ -134,14 +134,14 @@ def run_icw_test(target, path):
   if max_mss > MSS: return (False, False)
 
   # Handle success.
-  print("What", packets)
+#  print("What", packets)
   if is_limited: return (True, None, len(packets))
 
   # On failure, extract response and handle based on status code.
   response = ''.join([str(pkt[TCP].payload) for pkt in packets])
   response = response[response.find('HTTP'):]
   status_code = int(response[9:12])
-  print(status_code, response, len(packets))
+#  print(status_code, response, len(packets))
   if status_code == 301 or status_code == 302:
     idx = response.find('Location: ') + len('Location: ')
     location = response[idx:response.find("\n", idx)-1]
@@ -158,7 +158,7 @@ if __name__ == "__main__":
   target = args.target
   base_target, path = get_base_url(target)
   res = run_icw_test(base_target, path)
-  print(res)
+#  print(res)
   if res[0]: print(res[2])
   elif res[1]:
     print(res[3])
