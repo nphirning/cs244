@@ -3,6 +3,7 @@ from utils import *
 import argparse
 import time
 import random
+import threading
 
 SRC_PORT = random.randint(9001, 9998)
 START_SEQ = random.randint(1000, 2000)
@@ -35,7 +36,8 @@ def init_connection(target, path):
   ack_packet = create_tcp_packet(target, START_SEQ+1, 'A', seq_num+1, MSS, SRC_PORT)
   long_target = target + "/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images"
   get_str = 'GET %s HTTP/1.0\r\nHost: %s\r\n\r\n' % (path, target)
-  send(ack_packet / get_str, verbose=False)
+  t = threading.Timer(2, lambda: send(ack_packet / get_str, verbose=False))
+  t.start()
   return (True, len(get_str))
 
 """
@@ -53,7 +55,7 @@ def listen_until_retransmission(target):
   seq_nums_seen = []
   def stop_filter(pkt):
     # Check if this is a retransmission.
-    if TCP in pkt and len(pkt['TCP'].payload) == 0: return False
+    if TCP in pkt and len(pkt['TCP'].load.rstrip(b'\x00')) == 0: return False
     if TCP in pkt and pkt[TCP].seq in seq_nums_seen:
       retransmission_occurred[0] = True 
       return True
@@ -64,7 +66,7 @@ def listen_until_retransmission(target):
     return False
 
   sniff(
-    filter='host %s and port %s' % (target, SRC_PORT),
+    filter='host %s and dst port %s' % (target, SRC_PORT),
     stop_filter=stop_filter,
     timeout=TIMEOUT * 3
   )
@@ -81,7 +83,7 @@ def listen_for_new_data(target, max_seq_no):
   
   is_limited = [False] # Work-around to access inside stop_filter_on_new_data.
   def stop_filter_on_new_data(packet):
-    if TCP in packet and len(packet[TCP].payload) == 0: return False
+    if TCP in packet and len(packet[TCP].load.rstrip(b'\x00')) == 0: return False
     if packet[TCP].seq > max_seq_no:
       is_limited[0] = True
       return True
@@ -90,7 +92,7 @@ def listen_for_new_data(target, max_seq_no):
   sniff(
     filter='host %s and port %s' % (target, SRC_PORT),
     stop_filter=stop_filter_on_new_data,
-    timeout=TIMEOUT
+    timeout=TIMEOUT * 3
   )
 
   return is_limited[0]
@@ -134,14 +136,13 @@ def run_icw_test(target, path):
   if max_mss > MSS: return (False, False)
 
   # Handle success.
-#  print("What", packets)
   if is_limited: return (True, None, len(packets))
 
   # On failure, extract response and handle based on status code.
   response = ''.join([str(pkt[TCP].payload) for pkt in packets])
   response = response[response.find('HTTP'):]
   status_code = int(response[9:12])
-#  print(status_code, response, len(packets))
+
   if status_code == 301 or status_code == 302:
     idx = response.find('Location: ') + len('Location: ')
     location = response[idx:response.find("\n", idx)-1]
