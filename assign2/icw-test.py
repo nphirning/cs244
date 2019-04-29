@@ -25,9 +25,10 @@ def init_connection(target, path):
   # Step 1. Send SYN.
   syn_packet = create_tcp_packet(target, START_SEQ, 'S', None, MSS, SRC_PORT)
   ans, unans = sr(syn_packet, timeout=TIMEOUT, verbose=False)
-  if ans is None: return (False,)
+  if ans is None or len(ans) == 0: return (False,)
 
   # Step 2. Receive SYN-ACK response.
+  
   syn_response = ans[0][1]
   if not syn_response['TCP'] or syn_response['TCP'].flags != 'SA': return (False,)
   seq_num = syn_response['TCP'].seq
@@ -35,7 +36,7 @@ def init_connection(target, path):
   # Step 3. Send final ACK with GET request.
   ack_packet = create_tcp_packet(target, START_SEQ+1, 'A', seq_num+1, MSS, SRC_PORT)
   long_target = target + "/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images"
-  get_str = 'GET %s HTTP/1.0\r\nHost: %s\r\n\r\n' % (path, target)
+  get_str = 'GET %s HTTP/1.0\r\nHost: %s\r\n\r\n' % (path, long_target)
   t = threading.Timer(2, lambda: send(ack_packet / get_str, verbose=False))
   t.start()
   return (True, len(get_str))
@@ -51,10 +52,15 @@ def init_connection(target, path):
 """
 def listen_until_retransmission(target):
   retransmission_occurred = [False]
+  saw_a_fin = [False]
   packets = []
   seq_nums_seen = []
   def stop_filter(pkt):
-    # Check if this is a retransmission.
+
+    if TCP in pkt and pkt[TCP].flags & 0x01:
+      saw_a_fin[0] = True
+      return True
+
     if TCP in pkt:
       payload = str(pkt['TCP'].payload)[2:-1]
       payload = payload.replace('\\x00', '')
@@ -73,7 +79,7 @@ def listen_until_retransmission(target):
     stop_filter=stop_filter,
     timeout=TIMEOUT * 3
   )
-  return (retransmission_occurred[0], packets)
+  return (retransmission_occurred[0], packets, saw_a_fin[0])
 
 """
   Listens to packets from a given host `target` looking for nonempty packets
@@ -119,9 +125,8 @@ def run_icw_test(target, path):
   block_os_from_sending_rst()
   res = init_connection(target, path)
   if not res[0]: return (False, False)
-  success, packets = listen_until_retransmission(target)
-#  print(len(packets))
-  if not success: return (False, False)
+  success, packets, saw_a_fin = listen_until_retransmission(target)
+  if not success or saw_a_fin: return (False, False)
 
 
   # After re-transmission, ACK a segment and check if ICW was limiting.
@@ -165,17 +170,11 @@ if __name__ == "__main__":
   target = args.target
   base_target, path = get_base_url(target)
   res = run_icw_test(base_target, path)
-#  print(res)
+
+
   if res[0]: print(res[2])
   elif res[1]:
     print(res[3])
   else:
     print("Nope")
-  
-  
-
-  # if results[3] == 301 and results[0] == False:
-  #   loc = results[4] + "/images/images/images/images"
-  #   print("Retrying with %s" % loc)
-  #   run_icw_test(results[4], verbose=True)
 
