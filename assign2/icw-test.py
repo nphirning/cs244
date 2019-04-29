@@ -55,7 +55,10 @@ def listen_until_retransmission(target):
   seq_nums_seen = []
   def stop_filter(pkt):
     # Check if this is a retransmission.
-    if TCP in pkt and len(pkt['TCP'].load.rstrip(b'\x00')) == 0: return False
+    if TCP in pkt:
+      payload = str(pkt['TCP'].payload)[2:-1]
+      payload = payload.replace('\\x00', '')
+      if len(payload) == 0: return False
     if TCP in pkt and pkt[TCP].seq in seq_nums_seen:
       retransmission_occurred[0] = True 
       return True
@@ -83,7 +86,10 @@ def listen_for_new_data(target, max_seq_no):
   
   is_limited = [False] # Work-around to access inside stop_filter_on_new_data.
   def stop_filter_on_new_data(packet):
-    if TCP in packet and len(packet[TCP].load.rstrip(b'\x00')) == 0: return False
+    if TCP in packet:
+      payload = str(packet['TCP'].payload)[2:-1]
+      payload = payload.replace('\\x00', '')
+      if len(payload) == 0: return False
     if packet[TCP].seq > max_seq_no:
       is_limited[0] = True
       return True
