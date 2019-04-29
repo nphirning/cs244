@@ -25,7 +25,6 @@ for fname in os.listdir(directory):
 	f = open(os.path.join(directory, fname))
 	count = 0
 	lines = f.readlines()
-	print(lines)
 	all_same = len(set(lines)) == 1
 	for line in lines:
 		if is_int(line):
