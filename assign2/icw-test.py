@@ -35,8 +35,8 @@ def init_connection(target, path):
   
   # Step 3. Send final ACK with GET request.
   ack_packet = create_tcp_packet(target, START_SEQ+1, 'A', seq_num+1, MSS, SRC_PORT)
-  long_target = target + "/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images"
-  get_str = 'GET %s HTTP/1.0\r\nHost: %s\r\n\r\n' % (path, long_target)
+  long_path = "/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images/images"
+  get_str = 'GET %s HTTP/1.0\r\nHost: %s\r\n\r\n' % (long_path, target)
   t = threading.Timer(2, lambda: send(ack_packet / get_str, verbose=False))
   t.start()
   return (True, len(get_str))
@@ -171,7 +171,7 @@ if __name__ == "__main__":
   base_target, path = get_base_url(target)
   res = run_icw_test(base_target, path)
 
-
+  
   if res[0]: print(res[2])
   elif res[1]:
     print(res[3])
