@@ -6,7 +6,7 @@ def get_base_url(url):
   if '//' not in url:
     url = '%s%s' % ('http://', url)
   parsed_uri = urlparse(url)
-  result = '{uri.netloc}'.format(uri=parsed_uri)
+  result = 'www.{uri.netloc}'.format(uri=parsed_uri)
   return result, parsed_uri.path if len(parsed_uri.path) > 0 else '/'
 
 def block_os_from_sending_rst():
