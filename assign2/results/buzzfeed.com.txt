@@ -1,5 +1,2 @@
-1
-1
-1
-1
-1
+https://www.buzzfeed.comHTTP/1.0\r\nAcc'b'ept-Ranges: bytes\r\nDate: Mon, 29 Apr 2019 19:52:25 GMT\r\nVia: 1.1'b' varnish\r\nConnection: close\r\nX-Frame-Options: SAMEORIGIN\r\nSet-Co'b'okie: bf-geo-country=US; expires=Tue, 30 Apr 2019 19:52:25 GMT; 'b'path=/; domain=.buzzfeed.com;\r\nX-Served-By: cache-pao17438-PAO\r\n'b'X-Cache: HIT\r\nX-Cache-Hits: 0\r\nX-Timer: S1556567546.839111,VS0,V'b'E0\r\n\r\
+Nope

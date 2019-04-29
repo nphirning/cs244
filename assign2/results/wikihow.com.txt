@@ -1,5 +1,2 @@
-1
-1
-1
-1
-1
+https://www.wikihow.comHTTP/1.0\r\nAccept-Ranges: byt'b'es\r\nDate: Mon, 29 Apr 2019 19:44:20 GMT\r\nConnection: close\r\nX-Ti'b'mer: S1556567061.607921,VS0,VE0\r\nVary: Cookie, Accept-Encoding, 'b'User-Agent\r\nx-c: cache-sjc3635-SJC,M\r\nx-content-type-options: no'b'sniff\r\nx-xss-protection: 1; mode=block\r\n\r\
+https://www.wikihow.comHTTP/1.0\r\nAccept-Ranges: byt'b'es\r\nDate: Mon, 29 Apr 2019 19:54:14 GMT\r\nConnection: close\r\nX-Ti'b'mer: S1556567654.316692,VS0,VE0\r\nVary: Cookie, Accept-Encoding, 'b'User-Agent\r\nx-c: cache-sjc3630-SJC,M\r\nx-content-type-options: no'b'sniff\r\nx-xss-protection: 1; mode=block\r\n\r\

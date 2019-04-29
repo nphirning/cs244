@@ -1,5 +1,2 @@
-1
-1
-1
-1
-1
+https://www.thesaurus.comHTTP/1.0\r\nContent-Length: 0\r'b'\nAccept-Ranges: bytes\r\nDate: Mon, 29 Apr 2019 20:03:45 GMT\r\nVia:'b' 1.1 varnish\r\nConnection: close\r\nX-Served-By: cache-sjc3644-SJC\r'b'\nX-Cache: HIT\r\nX-Cache-Hits: 0\r\nX-Timer: S1556568226.507012,VS0,'b'VE0\r\nSet-Cookie: Variation=v0; Max-Age=1209600; Path=/\r\n\r\
+https://www.thesaurus.comHTTP/1.0\r\nContent-Length: 0\r'b'\nAccept-Ranges: bytes\r\nDate: Mon, 29 Apr 2019 20:13:45 GMT\r\nVia:'b' 1.1 varnish\r\nConnection: close\r\nX-Served-By: cache-sjc3640-SJC\r'b'\nX-Cache: HIT\r\nX-Cache-Hits: 0\r\nX-Timer: S1556568825.017992,VS0,'b'VE0\r\nSet-Cookie: Variation=v0; Max-Age=1209600; Path=/\r\n\r\

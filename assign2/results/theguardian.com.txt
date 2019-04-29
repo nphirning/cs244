@@ -1,5 +1,2 @@
-1
-1
-1
-1
-1
+http'b's://www.theguardian.comHTTP/1.0\r\nAccept-Ranges: bytes\r\nDate: Mon'b', 29 Apr 2019 19:32:31 GMT\r\nConnection: close\r\nX-Timer: S1556566'b'351.033938,VS0,VE0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protectio'b'n: 1; mode=block\r\nX-Content-Type-Options: nosniff\r\nContent-Secur'b"ity-Policy: default-src https:; script-src https: 'unsafe-inline"b"' 'unsafe-eval'; style-src https: 'unsafe-inline'; img-src https"b': data: blob:; media-src https: data: blob:; font-src https: dat'b'a:; connect-src https: wss:\r\nReferrer-Policy: no-referrer-when-d'b"owngrade\r\nFeature-Policy: camera 'none'; microphone 'none'; midi"b" 'none'\r\nCache-Control: \r\nSet-Cookie: GU_geo_continent=NA; path="b'/; Secure\r\n\r\
+http'b's://www.theguardian.comHTTP/1.0\r\nAccept-Ranges: bytes\r\nDate: Mon'b', 29 Apr 2019 19:42:37 GMT\r\nConnection: close\r\nX-Timer: S1556566'b'958.966977,VS0,VE0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protectio'b'n: 1; mode=block\r\nX-Content-Type-Options: nosniff\r\nContent-Secur'b"ity-Policy: default-src https:; script-src https: 'unsafe-inline"b"' 'unsafe-eval'; style-src https: 'unsafe-inline'; img-src https"b': data: blob:; media-src https: data: blob:; font-src https: dat'b'a:; connect-src https: wss:\r\nReferrer-Policy: no-referrer-when-d'b"owngrade\r\nFeature-Policy: camera 'none'; microphone 'none'; midi"b" 'none'\r\nCache-Control: \r\nSet-Cookie: GU_geo_continent=NA; path="b'/; Secure\r\n\r\

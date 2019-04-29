@@ -1,5 +1,2 @@
-1
-1
-1
-1
-1
+https://www.scribd.comHTTP/1.0\r\nContent-Length: 0\r\nAc'b'cept-Ranges: bytes\r\nDate: Mon, 29 Apr 2019 19:35:21 GMT\r\nVia: 1.'b'1 varnish\r\nConnection: close\r\nX-Served-By: cache-pao17440-PAO\r\nX'b'-Cache: HIT\r\nX-Cache-Hits: 0\r\nX-Timer: S1556566522.889087,VS0,VE'b'0\r\n\r\
+https://www.scribd.comHTTP/1.0\r\nContent-Length: 0\r\nAc'b'cept-Ranges: bytes\r\nDate: Mon, 29 Apr 2019 19:45:30 GMT\r\nVia: 1.'b'1 varnish\r\nConnection: close\r\nX-Served-By: cache-sjc3630-SJC\r\nX-'b'Cache: HIT\r\nX-Cache-Hits: 0\r\nX-Timer: S1556567130.168264,VS0,VE0'b'\r\n\r\

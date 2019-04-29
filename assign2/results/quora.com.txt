@@ -1,5 +1,2 @@
-1
-1
-1
-1
-1
+https://www.quora.comHTTP/1.0\r\nContent-Length: 0\r\nAcc'b'ept-Ranges: bytes\r\nDate: Mon, 29 Apr 2019 19:18:26 GMT\r\nVia: 1.1'b' varnish\r\nConnection: close\r\nX-Served-By: cache-sjc3624-SJC\r\nX-C'b'ache: HIT\r\nX-Cache-Hits: 0\r\nX-Timer: S1556565507.534153,VS0,VE0\r'b'\n\r\
+https://www.quora.comHTTP/1.0\r\nContent-Length: 0\r\nAcc'b'ept-Ranges: bytes\r\nDate: Mon, 29 Apr 2019 19:28:33 GMT\r\nVia: 1.1'b' varnish\r\nConnection: close\r\nX-Served-By: cache-pao17435-PAO\r\nX-'b'Cache: HIT\r\nX-Cache-Hits: 0\r\nX-Timer: S1556566113.231904,VS0,VE0'b'\r\n\r\

@@ -1,5 +1,2 @@
-1
-1
-1
-1
-1
+htt'b'ps://mega.nz\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-All'b'ow-Headers: MEGA-Chrome-Antileak\r\nAccess-Control-Max-Age: 86400\r'b'\nConnection: close\r\n\r\
+htt'b'ps://mega.nz\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-All'b'ow-Headers: MEGA-Chrome-Antileak\r\nAccess-Control-Max-Age: 86400\r'b'\nConnection: close\r\n\r\

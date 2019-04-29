@@ -1,5 +1,2 @@
-Nope
-Nope
-Nope
-Nope
-Nope
+https://HTTP/1.0\r\nServ'b'er: BigIP\r\nConnection: close\r\nContent-Length: 0\r\n\r\
+https://HTTP/1.0\r\nServ'b'er: BigIP\r\nConnection: close\r\nContent-Length: 0\r\n\r\

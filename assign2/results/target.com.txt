@@ -1,5 +1,1 @@
-8
-1
-1
-1
-1
+https://www.target.comHTTP/1.0\r\nAc'b'cept-Ranges: bytes\r\nDate: Mon, 29 Apr 2019 20:35:29 GMT\r\nConnect'b'ion: close\r\nclientgeo: US\r\nclientip: 174.222.157.174\r\nSet-Cookie'b': TealeafAkaSid=5ncjPNceDQ2u8bf6o62kjlchdMaRHAjp; Expires=Mon, 0'b'6 May 2019 20:35:29 GMT; Path=/; Domain=target.com;\r\nStrict-Tran'b'sport-Security: max-age=31536000; includeSubDomains\r\n\r\

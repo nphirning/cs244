@@ -1,5 +1,2 @@
-1
-1
-1
-1
-1
+https://www.vice.comHTTP/1.0\r\nContent-Length: 0\r\nAcce'b'pt-Ranges: bytes\r\nDate: Mon, 29 Apr 2019 19:45:06 GMT\r\nVia: 1.1 'b'varnish\r\nConnection: close\r\nX-Served-By: cache-sjc3630-SJC\r\nX-Ca'b'che: HIT\r\nX-Cache-Hits: 0\r\nX-Timer: S1556567106.338115,VS0,VE0\r\n'b'X-GeoIP-Country-Code: US\r\nX-GeoIP-Region-Code: NJ\r\nSet-Cookie: X'b'-GeoIP-Country-Code=US; path=/;\r\nSet-Cookie: X-GeoIP-Region-Code'b'=NJ; path=/;\r\n\r\
+Nope

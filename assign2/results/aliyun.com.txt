@@ -1,4 +1,2 @@
-1
-1
-1
-1
+http://err.taobao.com/error1.html\r\nVia: ton'b'gyijieru-aliyun-com010152166191.os30[web,302]\r\n\r\n<!DOCTYPE HTML 'b'PUBLIC "-//IETF//DTD HTML 2.0//EN">\r\n<html>\r\n<head><title>302 Fo'b'und</title></head>\r\n<body bgcolor="white">\r\n<h1>302 Found</h1>\r\n'b'<p>The requested resource resides temporarily under a different 'b'URI.</p>\r\n<hr/>Powered by Tengine</body>\r\n</html>\r\
+http://err.taobao.com/error1.html\r\nVia: ton'b'gyijieru-aliyun-com011193009070.sg52[web,302]\r\n\r\n<!DOCTYPE HTML 'b'PUBLIC "-//IETF//DTD HTML 2.0//EN">\r\n<html>\r\n<head><title>302 Fo'b'und</title></head>\r\n<body bgcolor="white">\r\n<h1>302 Found</h1>\r\n'b'<p>The requested resource resides temporarily under a different 'b'URI.</p>\r\n<hr/>Powered by Tengine</body>\r\n</html>\r\

@@ -1,5 +1,2 @@
-1
-1
-1
-1
-1
+https://www.speedtest.netHTTP/1.0\r\nDate: Mon, 29 Ap'b'r 2019 19:51:23 GMT\r\nConnection: close\r\nAccept-Ranges: bytes\r\n\r\
+Nope
