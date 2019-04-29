@@ -142,7 +142,7 @@ def run_icw_test(target, path):
   unblock_os_from_sending_rst()
 
   # Ensure that the MSS we specified was obeyed.
-  max_mss = max([len(pkt[TCP].payload) for pkt in packets])
+  max_mss = max([len(pkt[TCP].payload) for pkt in packets if TCP in pkt])
   if max_mss > MSS: return (False, False)
 
   # Handle success.
