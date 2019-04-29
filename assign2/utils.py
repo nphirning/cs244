@@ -1,12 +1,18 @@
 from scapy.all import *
 from urllib.parse import urlparse
 import os
+import socketserver
 
 def get_base_url(url):
   if '//' not in url:
     url = '%s%s' % ('http://', url)
   parsed_uri = urlparse(url)
-  result = 'www.{uri.netloc}'.format(uri=parsed_uri)
+  use_www = True
+  try:
+    socket.gethostbyname('www.{uri.netloc}'.format(uri=parsed_uri))
+  except socket.gaierror:
+    use_www = False
+  result = ('www.' if use_www else '') + '{uri.netloc}'.format(uri=parsed_uri)
   return result, parsed_uri.path if len(parsed_uri.path) > 0 else '/'
 
 def block_os_from_sending_rst():

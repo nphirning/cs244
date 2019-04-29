@@ -129,7 +129,7 @@ def run_icw_test(target, path):
 
 
   # After re-transmission, ACK a segment and check if ICW was limiting.
-  packet_data = [(pkt[TCP].seq, len(pkt[TCP].payload)) for pkt in packets]
+  packet_data = [(pkt[TCP].seq, len(pkt[TCP].payload)) for pkt in packets if TCP in pkt]
   max_seq_no, payload_len = max(packet_data)
   ack_no = max_seq_no + payload_len
   next_seq_no = START_SEQ + 1 + res[1]
