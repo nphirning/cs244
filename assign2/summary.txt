@@ -1,0 +1,10 @@
+Number of servers in category 1: 69
+Number of servers in category 2: 83
+Number of servers in category 3: 0
+Number of servers in category 4: 44
+Number of servers in category 5: 54
+Number of servers in category 1 with icw size 1: 7
+Number of servers in category 1 with icw size 2: 0
+Number of servers in category 1 with icw size 3: 0
+Number of servers in category 1 with icw size 4: 0
+Number of servers in category 1 with icw size 5: 62

@@ -92,10 +92,10 @@ def listen_for_new_data(target, max_seq_no):
   is_limited = [False] # Work-around to access inside stop_filter_on_new_data.
   def stop_filter_on_new_data(packet):
     if TCP in packet:
-      payload = str(packet['TCP'].payload)[2:-1]
+      payload = str(packet[TCP].payload)[2:-1]
       payload = payload.replace('\\x00', '')
       if len(payload) == 0: return False
-    if packet[TCP].seq > max_seq_no:
+    if TCP in packet and packet[TCP].seq > max_seq_no:
       is_limited[0] = True
       return True
     return False
